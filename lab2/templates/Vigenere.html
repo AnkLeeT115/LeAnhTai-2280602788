@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vigenere Cipher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script>
+        function cleanText(text) {
+            return text.replace(/[^a-zA-Z]/g, "").toUpperCase();
+        }
+
+        function vigenereEncrypt(plainText, key) {
+            plainText = cleanText(plainText);
+            key = cleanText(key);
+            let result = "";
+            let j = 0;
+
+            for (let i = 0; i < plainText.length; i++) {
+                let p = plainText.charCodeAt(i) - 65;
+                let k = key.charCodeAt(j % key.length) - 65;
+                let c = (p + k) % 26 + 65;
+                result += String.fromCharCode(c);
+                j++;
+            }
+            return result;
+        }
+
+        function vigenereDecrypt(cipherText, key) {
+            cipherText = cleanText(cipherText);
+            key = cleanText(key);
+            let result = "";
+            let j = 0;
+
+            for (let i = 0; i < cipherText.length; i++) {
+                let c = cipherText.charCodeAt(i) - 65;
+                let k = key.charCodeAt(j % key.length) - 65;
+                let p = (c - k + 26) % 26 + 65;
+                result += String.fromCharCode(p);
+                j++;
+            }
+            return result;
+        }
+
+        function handleEncrypt() {
+            const plainText = document.getElementById("vigenerePlainText").value;
+            const key = document.getElementById("vigenereKeyEncrypt").value;
+            const cipher = vigenereEncrypt(plainText, key);
+            document.getElementById("vigenereCipherText").value = cipher;
+            return false;
+        }
+
+        function handleDecrypt() {
+            const cipherText = document.getElementById("vigenereInputCipher").value;
+            const key = document.getElementById("vigenereKeyDecrypt").value;
+            const plain = vigenereDecrypt(cipherText, key);
+            document.getElementById("vigenereOutputPlain").value = plain;
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <table class="table">
+        <tr><td style="text-align: center; font-weight: bold; font-size: 25px;">VIGENERE CIPHER</td></tr>
+
+        <tr><td style="font-weight: bold; color: blue">ENCRYPTION</td></tr>
+        <tr>
+            <td>
+                <form onsubmit="return handleEncrypt();">
+                    <div class="mb-3">
+                        <label class="form-label">Plain text:</label>
+                        <input type="text" class="form-control" id="vigenerePlainText" placeholder="Input Plain Text" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key (alphabet only):</label>
+                        <input type="text" class="form-control" id="vigenereKeyEncrypt" placeholder="Input Key" required/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Encrypt</button>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Cipher Text:</label>
+                        <input type="text" class="form-control" id="vigenereCipherText" readonly/>
+                    </div>
+                </form>
+            </td>
+        </tr>
+
+        <tr><td style="font-weight: bold; color: blue">DECRYPTION</td></tr>
+        <tr>
+            <td>
+                <form onsubmit="return handleDecrypt();">
+                    <div class="mb-3">
+                        <label class="form-label">Cipher text:</label>
+                        <input type="text" class="form-control" id="vigenereInputCipher" placeholder="Input Cipher Text" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key (alphabet only):</label>
+                        <input type="text" class="form-control" id="vigenereKeyDecrypt" placeholder="Input Key" required/>
+                    </div>
+                    <button type="submit" class="btn btn-success">Decrypt</button>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Plain Text:</label>
+                        <input type="text" class="form-control" id="vigenereOutputPlain" readonly/>
+                    </div>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

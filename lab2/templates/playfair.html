@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Playfair Cipher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script>
+        function prepareText(text) {
+            text = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+            let result = '';
+            for (let i = 0; i < text.length; i += 2) {
+                let a = text[i];
+                let b = text[i + 1] || 'X';
+                if (a === b) {
+                    result += a + 'X';
+                    i--;
+                } else {
+                    result += a + b;
+                }
+            }
+            return result;
+        }
+
+        function generateMatrix(key) {
+            key = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+            let matrix = '';
+            for (let i = 0; i < key.length; i++) {
+                if (!matrix.includes(key[i])) matrix += key[i];
+            }
+            const alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ';
+            for (let i = 0; i < alphabet.length; i++) {
+                if (!matrix.includes(alphabet[i])) matrix += alphabet[i];
+            }
+            let grid = [];
+            for (let i = 0; i < 5; i++) {
+                grid.push(matrix.slice(i * 5, i * 5 + 5).split(''));
+            }
+            return grid;
+        }
+
+        function findPosition(matrix, letter) {
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    if (matrix[i][j] === letter) return [i, j];
+                }
+            }
+            return null;
+        }
+
+        function encryptPlayfair(text, key) {
+            const matrix = generateMatrix(key);
+            text = prepareText(text);
+            let result = '';
+            for (let i = 0; i < text.length; i += 2) {
+                let [aRow, aCol] = findPosition(matrix, text[i]);
+                let [bRow, bCol] = findPosition(matrix, text[i + 1]);
+
+                if (aRow === bRow) {
+                    result += matrix[aRow][(aCol + 1) % 5];
+                    result += matrix[bRow][(bCol + 1) % 5];
+                } else if (aCol === bCol) {
+                    result += matrix[(aRow + 1) % 5][aCol];
+                    result += matrix[(bRow + 1) % 5][bCol];
+                } else {
+                    result += matrix[aRow][bCol];
+                    result += matrix[bRow][aCol];
+                }
+            }
+            return result;
+        }
+
+        function decryptPlayfair(text, key) {
+            const matrix = generateMatrix(key);
+            text = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+            let result = '';
+            for (let i = 0; i < text.length; i += 2) {
+                let [aRow, aCol] = findPosition(matrix, text[i]);
+                let [bRow, bCol] = findPosition(matrix, text[i + 1]);
+
+                if (aRow === bRow) {
+                    result += matrix[aRow][(aCol + 4) % 5];
+                    result += matrix[bRow][(bCol + 4) % 5];
+                } else if (aCol === bCol) {
+                    result += matrix[(aRow + 4) % 5][aCol];
+                    result += matrix[(bRow + 4) % 5][bCol];
+                } else {
+                    result += matrix[aRow][bCol];
+                    result += matrix[bRow][aCol];
+                }
+            }
+            return result;
+        }
+
+        function handleEncrypt() {
+            const text = document.getElementById("pfPlainText").value;
+            const key = document.getElementById("pfKeyEncrypt").value;
+            const cipher = encryptPlayfair(text, key);
+            document.getElementById("pfCipherText").value = cipher;
+            return false;
+        }
+
+        function handleDecrypt() {
+            const cipher = document.getElementById("pfInputCipher").value;
+            const key = document.getElementById("pfKeyDecrypt").value;
+            const plain = decryptPlayfair(cipher, key);
+            document.getElementById("pfPlainOutput").value = plain;
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <table class="table">
+        <tr><td style="text-align: center; font-weight: bold; font-size: 25px;">PLAYFAIR CIPHER</td></tr>
+
+        <tr><td style="font-weight: bold; color: blue">ENCRYPTION</td></tr>
+        <tr>
+            <td>
+                <form onsubmit="return handleEncrypt();">
+                    <div class="mb-3">
+                        <label class="form-label">Plain text:</label>
+                        <input type="text" class="form-control" id="pfPlainText" placeholder="Input Plain Text" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key (word):</label>
+                        <input type="text" class="form-control" id="pfKeyEncrypt" placeholder="Input Keyword" required/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Encrypt</button>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Cipher Text:</label>
+                        <input type="text" class="form-control" id="pfCipherText" readonly/>
+                    </div>
+                </form>
+            </td>
+        </tr>
+
+        <tr><td style="font-weight: bold; color: blue">DECRYPTION</td></tr>
+        <tr>
+            <td>
+                <form onsubmit="return handleDecrypt();">
+                    <div class="mb-3">
+                        <label class="form-label">Cipher text:</label>
+                        <input type="text" class="form-control" id="pfInputCipher" placeholder="Input Cipher Text" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key (word):</label>
+                        <input type="text" class="form-control" id="pfKeyDecrypt" placeholder="Input Keyword" required/>
+                    </div>
+                    <button type="submit" class="btn btn-success">Decrypt</button>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Plain Text:</label>
+                        <input type="text" class="form-control" id="pfPlainOutput" readonly/>
+                    </div>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
