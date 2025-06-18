@@ -1,10 +1,7 @@
-import rsa
-import os
+import rsa, os
 
-# Tạo thư mục chứa khóa nếu chưa tồn tại
-KEY_FOLDER = 'cipher/rsa/keys'
-if not os.path.exists(KEY_FOLDER):
-    os.makedirs(KEY_FOLDER)
+if not os.path.exists('cipher/rsa/keys'):
+    os.makedirs('cipher/rsa/keys')
 
 class RSACipher:
     def __init__(self):
@@ -12,17 +9,15 @@ class RSACipher:
 
     def generate_keys(self):
         (public_key, private_key) = rsa.newkeys(1024)
-        with open(f'{KEY_FOLDER}/publicKey.pem', 'wb') as p:
+        with open('cipher/rsa/keys/publicKey.pem', 'wb') as p:
             p.write(public_key.save_pkcs1('PEM'))
-        with open(f'{KEY_FOLDER}/privateKey.pem', 'wb') as p:
+        with open('cipher/rsa/keys/privateKey.pem', 'wb') as p:
             p.write(private_key.save_pkcs1('PEM'))
 
     def load_keys(self):
-        if not os.path.exists(f'{KEY_FOLDER}/publicKey.pem') or not os.path.exists(f'{KEY_FOLDER}/privateKey.pem'):
-            raise FileNotFoundError("Key files not found. Please generate keys first.")
-        with open(f'{KEY_FOLDER}/publicKey.pem', 'rb') as p:
+        with open('cipher/rsa/keys/publicKey.pem', 'rb') as p:
             public_key = rsa.PublicKey.load_pkcs1(p.read())
-        with open(f'{KEY_FOLDER}/privateKey.pem', 'rb') as p:
+        with open('cipher/rsa/keys/privateKey.pem', 'rb') as p:
             private_key = rsa.PrivateKey.load_pkcs1(p.read())
         return private_key, public_key
 
@@ -40,6 +35,6 @@ class RSACipher:
 
     def verify(self, message, signature, key):
         try:
-            return rsa.verify(message.encode('ascii'), signature, key) == 'SHA-1'
+            return rsa.verify(message.encode('ascii'), signature, key,) == 'SHA-1'
         except:
             return False
